@@ -12,6 +12,18 @@ spline = do
 
   path: (x1, y1, px1, py1, px2, py2, x2, y2) -> "M #x1 #y1 C #px1 #py1 #px2 #py2 #x2 #y2"
 
+  # heteroformat ( {anchor, ctrl1, ctrl2})
+  add-ctrls: (pts) ->
+    px = @computeControlPoints x = [(p.x or p.0 or p.[]anchor.0) for p in pts]
+    py = @computeControlPoints y = [(p.y or p.1 or p.[]anchor.1) for p in pts]
+    for i from 0 til pts.length =>
+      pts[i].anchor = [x[i], y[i]]
+      if i > 0 => pts[i].ctrl1  = [px.p2[i - 1], py.p2[i - 1]]
+      else pts[i].ctrl1 = [x[i],y[i]]
+      if i < pts.length - 1 => pts[i].ctrl2  = [px.p1[i], py.p1[i]]
+      else pts[i].ctrl2 = [x[i],y[i]]
+    pts
+
   computeControlPoints: (K) ->
     [p1,p2] = [[],[]]
     [a,b,c,r,n] = [[0],[2],[1],[K.0 + 2 * K.1], K.length - 1]
